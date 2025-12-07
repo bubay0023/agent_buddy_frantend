@@ -3,6 +3,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Declare build arguments
+ARG VITE_API_URL
+
+# Set environment variables for the build
+ENV VITE_API_URL=$VITE_API_URL
+
 # Copy package files
 COPY package*.json ./
 
@@ -12,7 +18,7 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (Vite will pick up the env var)
 RUN npm run build
 
 # Stage 2: Production image with nginx
