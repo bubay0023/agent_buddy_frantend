@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
+import Login from './Login'
 
 // SVG Icons
 const AgentIcon = () => (
@@ -26,6 +27,12 @@ const generateSessionId = () => {
 }
 
 function App() {
+  // Auth state
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('agentbuddy_user')
+    return saved ? JSON.parse(saved) : null
+  })
+
   const [messages, setMessages] = useState([])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -33,6 +40,16 @@ function App() {
   const [sessionId] = useState(() => generateSessionId())
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
+
+  const handleLogin = (loggedInUser) => {
+    setUser(loggedInUser)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('agentbuddy_user')
+    setUser(null)
+    setMessages([])
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -144,6 +161,10 @@ function App() {
     "Help me with coding",
     "What can you do?"
   ]
+  // If not logged in, show login page
+  if (!user) {
+    return <Login onLogin={handleLogin} />
+  }
 
   return (
     <div className="app-container">
@@ -158,6 +179,16 @@ function App() {
             <span className="status-dot"></span>
             <span>Online • Ready to help</span>
           </div>
+        </div>
+        <div className="header-actions">
+          <span className="user-name">Hi, {user.name}</span>
+          <button className="logout-button" onClick={handleLogout}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
         </div>
       </header>
 
